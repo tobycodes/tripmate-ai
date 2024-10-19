@@ -10,7 +10,7 @@ export type FullConfigType = {
 
 @Global()
 @Injectable()
-export class ConfigService extends NestConfigService<FullConfigType, true> {
+export class ConfigAdapter extends NestConfigService<FullConfigType, true> {
   constructor(...args: any[]) {
     super(...args);
   }

@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { CryptoService } from 'src/infrastructure/crypto/crypto.service';
-import { ConfigService } from 'src/infrastructure/config/config.service';
+import { CryptoAdapter } from 'src/infrastructure/crypto/crypto.adapter';
+import { ConfigAdapter } from 'src/infrastructure/config/config.adapter';
 import { ConflictError } from 'src/kernel/errors';
 import { AccessService } from '../access/access.service';
 import { JwtUser } from './auth.types';
@@ -14,16 +14,16 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-    private readonly cryptoService: CryptoService,
-    private readonly configService: ConfigService,
+    private readonly crypto: CryptoAdapter,
+    private readonly config: ConfigAdapter,
     private readonly accessService: AccessService,
   ) {
-    this.jwtSecret = this.configService.get('app.jwtSecret');
+    this.jwtSecret = this.config.get('app.jwtSecret');
   }
 
   async login(email: string, password: string) {
     const user = await this.userService.getByEmailOrThrow(email);
-    const isPasswordValid = await this.cryptoService.compare(password, user.password);
+    const isPasswordValid = await this.crypto.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -58,7 +58,7 @@ export class AuthService {
       });
     }
 
-    const hashedPassword = await this.cryptoService.hash(password);
+    const hashedPassword = await this.crypto.hash(password);
     const user = await this.userService.create({
       email,
       password: hashedPassword,

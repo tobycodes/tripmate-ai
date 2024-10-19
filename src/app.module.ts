@@ -7,7 +7,7 @@ import { AppController } from './app.controller';
 import { AuthModule } from './application/auth/auth.module';
 import { ChatModule } from './application/chat/chat.module';
 import { ConfigModule } from './infrastructure/config/config.module';
-import { ConfigService } from './infrastructure/config/config.service';
+import { ConfigAdapter } from './infrastructure/config/config.adapter';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { InterfaceModule } from './interface/interface.module';
 import { TripAdvisorModule } from './infrastructure/clients/trip_advisor/trip_advisor.module';
@@ -30,11 +30,11 @@ const appModules = [
 
 const nestModules = [
   JwtModule.registerAsync({
-    useFactory: (config: ConfigService) => ({
+    useFactory: (config: ConfigAdapter) => ({
       secret: config.get('app.jwtSecret'),
       signOptions: { expiresIn: '1d' },
     }),
-    inject: [ConfigService],
+    inject: [ConfigAdapter],
     global: true,
   }),
 ];

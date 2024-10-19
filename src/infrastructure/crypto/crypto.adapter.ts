@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { ConfigService } from '../config/config.service';
+import { ConfigAdapter } from '../config/config.adapter';
 
 @Injectable()
-export class CryptoService {
+export class CryptoAdapter {
   private readonly secret: string;
 
-  constructor(private readonly configService: ConfigService) {
-    this.secret = this.configService.get('app.cryptoSecret');
+  constructor(private readonly config: ConfigAdapter) {
+    this.secret = this.config.get('app.cryptoSecret');
   }
 
   async hash(password: string): Promise<string> {
