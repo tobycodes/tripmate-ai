@@ -1,92 +1,81 @@
-# TripMate AI
+# Tripmate AI - Travel & Food Recommendation System
 
-TripMate AI is an intelligent travel companion application that helps users plan and enhance their travel experiences using AI-powered recommendations and insights.
+Tripmate AI is a platform that enables users to ask for personalized recommendations on travel destinations, food, and local experiences, powered by ChatGPT and real-time data from the TripAdvisor API. The system is designed to provide users with seamless interaction while managing user access and chat requests, ensuring a smooth experience.
 
-## Features
+## Key Features
 
-- AI-powered chat interface for travel recommendations
-- User authentication and authorization
-- Integration with TripAdvisor API for up-to-date travel information
-- Personalized travel suggestions based on user preferences
-- Daily chat limit to manage resource usage
+- **AI-Powered Chat for Recommendations**: Users can interact with the system to get tailored recommendations for travel and dining using ChatGPT, which queries the TripAdvisor API.
+- **Access Control**: After the first 10 users, access becomes restricted. New users must request access, which triggers an approval workflow that includes email notifications.
+- **Chat History Management**: Users can view their past conversations and responses in a single thread. They cannot initiate new chat threads until future iterations of the platform.
+- **Rate Limiting**: Users are limited to 20 chat messages per day. This ensures that system resources are not abused.
+- **Langchain Integration**: The platform leverages Langchain and Langgraph to create a ReAct agent that uses tool-calling to dynamically fetch and refine recommendations from TripAdvisor, enhancing response accuracy and relevance.
 
-## Tech Stack
+## Architecture Overview
 
-- Backend: NestJS (TypeScript)
-- Database: PostgreSQL
-- ORM: TypeORM
-- AI: OpenAI GPT-4, LangChain
-- Authentication: JWT
+The project employs hexagonal architecture and clean design principles to create a scalable and responsive platform.
 
-## Getting Started
+### Frontend
 
-### Prerequisites
+- **Next.js** and **TypeScript** are used to build the user interface, allowing users to log in, chat with the AI, and view their chat history.
+- **Shadcn UI** provides a customizable and scalable design system to enhance user experience.
 
-- Node.js (v14 or later)
-- PostgreSQL
-- OpenAI API key
-- TripAdvisor API key
+### Backend
 
-### Installation
+- **NestJS** is the core of the backend, responsible for handling user authentication, chat interactions, and API requests.
+- **PostgreSQL** stores user data, chat history, and access control information, ensuring structured data management and persistence.
 
-1. Clone the repository:
+### AI Engine
 
-   ```
-   git clone git@github.com:tobycodes/tripmate-ai.git
-   cd tripmate-ai
-   ```
+- **LangChain** and **LangGraph** are used to construct a ReAct agent, allowing the AI to interact with the TripAdvisor API.
+- The agent calls the TripAdvisor API in real-time to fetch travel and food recommendations, providing responses based on dynamic data.
 
-2. Install dependencies:
+### Deployment & CI/CD
 
-   ```
-   npm install
-   ```
+- The project is containerized using **Fly.io** for hosting, ensuring portability and scalability.
+- **GitHub Actions** are used for CI/CD, automating deployment workflows and tests for smooth updates.
 
-3. Set up environment variables:
-   Copy the `.env.example` file to `.env` and fill in the required values.
+## Entity Relationships
 
-4. Start the development server:
-   ```
-   npm run start:dev
-   ```
-
-## How It Works
-
-### AI-Powered Chat Interface
-
-The chat interface allows users to interact with the AI to get travel recommendations. The AI is powered by OpenAI's GPT-4 model and is integrated using LangChain. Users can ask for travel suggestions, and the AI will provide personalized recommendations based on the user's input.
-
-### User Authentication and Authorization
-
-The application uses JWT for authentication and authorization. Users can register, log in, and access their personalized travel recommendations. The authentication endpoints are secured, ensuring that only authorized users can access their data.
-
-### Integration with TripAdvisor API
-
-TripMate AI integrates with the TripAdvisor API to fetch up-to-date travel information. This includes details about popular destinations, restaurants, hotels, and more. The AI uses this information to provide accurate and relevant recommendations to users.
-
-### Daily Chat Limit
-
-To manage resource usage, the application enforces a daily chat limit. Each user can initiate up to 20 chat sessions per day. This limit helps in controlling the usage of the AI resources and ensures fair usage for all users.
-
-## Entity Relationship Diagram
+The platform’s data model revolves around user accounts, chat messages, access requests, and chat limits. Below is the entity relationship diagram (ERD) represented in **Mermaid**:
 
 ```mermaid
 erDiagram
     USER {
-        string id PK
+        string id
         string email
-        string firstName
-        string lastName
         string password
+        boolean is_approved
+        date created_at
+        date updated_at
     }
-
-    CHAT_MESSAGE {
-        string id PK
+    ACCESS_REQUEST {
+        string id
+        string user_id
+        string status
+        date requested_at
+        date approved_at nullish
+    }
+    CHAT {
+        string id
+        string user_id
         string message
-        string role
-        datetime timestamp
-        string userId FK
+        string response nullish
+        date sent_at
+    }
+    CHAT_LIMIT {
+        string id
+        string user_id
+        int daily_count
+        date reset_time
     }
 
-    USER ||--o{ CHAT_MESSAGE : has
+    USER ||--o{ ACCESS_REQUEST : has
+    USER ||--o{ CHAT : has
 ```
+
+### Explanation:
+
+- **User**: This table stores user information, including credentials like email and password. It also holds an approval status (`is_approved`) to indicate whether a user has access to the platform beyond the initial 10 users, as well as timestamps for when the account was created or last updated.
+- **Access Request**: This table tracks user requests for access when the limit of initial users has been reached. It includes the user ID, request status, and timestamps for when the request was made (`requested_at`) and approved (`approved_at`). The `approved_at` field is marked `nullish()` as it will be empty until access is granted.
+
+- **Chat**: This table records chat interactions between users and the AI. Each entry stores the user ID, the message they sent, and the AI's response.
