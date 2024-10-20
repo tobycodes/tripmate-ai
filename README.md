@@ -56,7 +56,7 @@ erDiagram
         string firstName
         string lastName
         string email
-        enum status (pending, approved, rejected)
+        string status
         date requestedAt
         date approvedAt nullish
         date rejectedAt nullish
@@ -67,7 +67,7 @@ erDiagram
     CHAT_MESSAGE {
         uuid id
         string message
-        enum role (user, assistant)
+        string role
         timestamp timestamp
         uuid userId FK
         date createdAt
@@ -76,6 +76,7 @@ erDiagram
 
     USER ||--o{ ACCESS_REQUEST : "has"
     USER ||--o{ CHAT_MESSAGE : "sends"
+
 ```
 
 ### Explanation:
