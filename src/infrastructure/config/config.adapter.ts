@@ -2,10 +2,11 @@ import { Global, Injectable } from '@nestjs/common';
 import type { Path, PathValue } from '@nestjs/config';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 
-import type { AppConfigType } from './config.register';
+import type { AppConfigType, DbConfigType } from './config.register';
 
 export type FullConfigType = {
   app: AppConfigType;
+  db: DbConfigType;
 };
 
 @Global()

@@ -13,7 +13,7 @@ export enum TargetEnv {
   PRODUCTION = 'production',
 }
 
-const envVarsSchema = z.object({
+const appVarsSchema = z.object({
   name: z.string(),
   port: z.number().default(3000),
   env: z.nativeEnum(TargetEnv).default(TargetEnv.DEVELOPMENT),
@@ -24,7 +24,6 @@ const envVarsSchema = z.object({
   clientUrl: z.string(),
   debugMode: z.boolean().default(false),
 });
-
 const appConfig = registerAs('app', () => {
   const { name, port, env, jwtSecret, cryptoSecret, hostUrl, authTokenType, clientUrl, debugMode } = parseEnvVars();
 
@@ -55,7 +54,7 @@ const appConfig = registerAs('app', () => {
 });
 
 const parseEnvVars = () => {
-  return envVarsSchema.parse({
+  return appVarsSchema.parse({
     name: process.env.APP_NAME,
     port: parseInt(process.env.APP_PORT || '8080', 10),
     env: process.env.APP_ENV,
@@ -75,7 +74,27 @@ const splitString = (str: string) =>
     .filter(Boolean);
 
 export const APP_CONFIG_KEY = appConfig.KEY;
-
 export type AppConfigType = ConfigType<typeof appConfig>;
 
-export default appConfig;
+const dbVarsSchema = z.object({
+  host: z.string(),
+  port: z.number().default(5432),
+  user: z.string(),
+  password: z.string(),
+  database: z.string(),
+});
+
+const dbConfig = registerAs('db', () => {
+  return dbVarsSchema.parse({
+    host: process.env.DATABASE_HOST,
+    port: parseInt(process.env.DATABASE_PORT || '5432'),
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE_NAME,
+  });
+});
+
+export const DB_CONFIG_KEY = dbConfig.KEY;
+export type DbConfigType = ConfigType<typeof dbConfig>;
+
+export { appConfig, dbConfig };

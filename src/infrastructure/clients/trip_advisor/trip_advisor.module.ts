@@ -2,18 +2,20 @@ import axios from 'axios';
 import { Global, Module } from '@nestjs/common';
 import { TripAdvisorService } from './trip_advisor.service';
 import { configSchema } from './trip_advisor.schemas';
+import { LoggerAdapter } from 'src/infrastructure/logger/logger.adapter';
 
 const TripAdvisorServiceProvider = {
   provide: TripAdvisorService,
-  useFactory: () => {
+  useFactory: (logger: LoggerAdapter) => {
     const config = configSchema.parse({
       apiKey: process.env.TRIP_ADVISOR_API_KEY,
       baseUrl: process.env.TRIP_ADVISOR_BASE_URL,
     });
     const httpClient = axios.create({ baseURL: config.baseUrl });
 
-    return new TripAdvisorService(httpClient, config);
+    return new TripAdvisorService(httpClient, config, logger);
   },
+  inject: [LoggerAdapter],
 };
 
 @Global()

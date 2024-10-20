@@ -3,17 +3,14 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Injectable, Module } from '@nestjs/common';
 import { TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { configSchema } from './database.schemas';
+import { ConfigAdapter } from '../config/config.adapter';
 
 @Injectable()
-class TypeOrmConfigService implements TypeOrmOptionsFactory {
+class TypeOrmConfigService implements TypeOrmOptionsFactory { 
+  constructor(private readonly configAdapter: ConfigAdapter) {}
+
   createTypeOrmOptions(): TypeOrmModuleOptions {
-    const config = configSchema.parse({
-      host: process.env.DATABASE_HOST || 'localhost',
-      port: parseInt(process.env.DATABASE_PORT || '5432'),
-      user: process.env.DATABASE_USER || 'postgres',
-      password: process.env.DATABASE_PASSWORD || 'postgres',
-      database: process.env.DATABASE_NAME || 'postgres',
-    });
+    const config = this.configAdapter.get('db');
 
     return {
       type: 'postgres',

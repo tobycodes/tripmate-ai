@@ -134,96 +134,6 @@ const periodSchema = z.object({
     .describe('The day and times intervals in which the location is closed'),
 });
 
-export const LocationDetailsSchema = z.object({
-  location_id: z.string().describe('Unique Tripadvisor location ID of the destination or POI'),
-  name: z.string().describe('Name of the location.'),
-  description: z.string().optional().describe('Description of the location.'),
-  web_url: z
-    .string()
-    .optional()
-    .describe(
-      'Link to the POI detail page on Tripadvisor. Link is localized to the correct domain if a language other than English is requested',
-    ),
-  address_obj: addressSchema,
-  latitude: z.string().nullish().describe('The latitude of the location'),
-  longitude: z.string().nullish().describe('The longitude of the location'),
-  timezone: z.string().nullish().describe('The timezone of the location'),
-  email: z.string().nullish().describe('The email of the location'),
-  phone: z.string().nullish().describe('The phone number of the location'),
-  website: z.string().nullish().describe('The website of the location'),
-  write_review: z
-    .string()
-    .nullish()
-    .describe(
-      'Link to the review form for this specific POI on Tripadvisor. Link is localized to the correct domain if a language other than English is requested.',
-    ),
-  rating: z
-    .number()
-    .nullish()
-    .describe(
-      `
-        Overall rating for this POI. Not applicable to geographic locations. Rating levels are defined as follows:
-        5: Excellent
-        4: Very good
-        3: Average
-        2: Poor
-        1: Terrible
-      `,
-    ),
-  rating_image_url: z
-    .string()
-    .nullish()
-    .describe(
-      'URL to the bubble rating image for this location. Overall Bubble Ratings must be displayed using the Tripadvisor bubble rating image with the owl icon.',
-    ),
-});
-
-export const LocationPhotosSchema = z
-  .object({
-    data: z
-      .array(
-        z.object({
-          id: z.number().describe('Unique identifier for the photo.'),
-          url: z.string().describe('URL of the photo.'),
-          caption: z.string().optional().describe('Caption for the photo.'),
-          // Add other fields as necessary
-        }),
-      )
-      .describe('List of photos for the location.'),
-  })
-  .describe('Photos of a specific location.');
-
-export const LocationReviewsSchema = z
-  .object({
-    data: z
-      .array(
-        z.object({
-          id: z.number().describe('Unique identifier for the review.'),
-          text: z.string().describe('Text content of the review.'),
-          rating: z.number().describe('Rating given in the review.'),
-          // Add other fields as necessary
-        }),
-      )
-      .describe('List of reviews for the location.'),
-  })
-  .describe('Reviews of a specific location.');
-
-export const SearchResultsSchema = z
-  .object({
-    data: z
-      .array(
-        z.object({
-          location_id: z.string().describe('Unique identifier for the location.'),
-          name: z.string().describe('Name of the location.'),
-          distance: z.string().describe('Distance, in miles, this location is from the passed in LatLong parameters.'),
-          bearing: z.string().describe('Bearing, in degrees, this location is from the passed in LatLong parameters.'),
-          address_obj: addressSchema,
-        }),
-      )
-      .describe('List of locations matching the search query.'),
-  })
-  .describe('Results of a location search query.');
-
 //////////////////////
 ///// EXPORTS //////
 ////////////////////
@@ -231,8 +141,3 @@ export type SearchLocationsParams = z.infer<typeof SearchLocationsParamsSchema>;
 export type LocationDetailsParams = z.infer<typeof LocationDetailsParamsSchema>;
 export type LocationPhotosParams = z.infer<typeof LocationPhotosParamsSchema>;
 export type LocationReviewsParams = z.infer<typeof LocationReviewsParamsSchema>;
-
-export type LocationDetails = z.infer<typeof LocationDetailsSchema>;
-export type LocationPhotos = z.infer<typeof LocationPhotosSchema>;
-export type LocationReviews = z.infer<typeof LocationReviewsSchema>;
-export type SearchResults = z.infer<typeof SearchResultsSchema>;

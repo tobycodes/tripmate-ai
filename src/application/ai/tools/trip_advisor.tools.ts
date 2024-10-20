@@ -2,10 +2,6 @@ import { StructuredTool } from '@langchain/core/tools';
 import { TripAdvisorService } from 'src/infrastructure/clients/trip_advisor/trip_advisor.service';
 import { z } from 'zod';
 import {
-  SearchResults,
-  LocationDetails,
-  LocationPhotos,
-  LocationReviews,
   SearchLocationsParamsSchema,
   LocationDetailsParamsSchema,
   LocationPhotosParamsSchema,
@@ -23,7 +19,7 @@ class TripAdvisorSearchLocationsTool extends StructuredTool {
     super();
   }
 
-  async _call(input: z.infer<typeof this.schema>): Promise<SearchResults> {
+  async _call(input: z.infer<typeof this.schema>): Promise<any> {
     return await this.tripAdvisorService.searchLocations(input.params);
   }
 }
@@ -37,7 +33,7 @@ class TripAdvisorGetLocationDetailsTool extends StructuredTool {
     super();
   }
 
-  async _call(input: z.infer<typeof this.schema>): Promise<LocationDetails> {
+  async _call(input: z.infer<typeof this.schema>): Promise<any> {
     return await this.tripAdvisorService.getLocationDetails(input.locationId);
   }
 }
@@ -51,7 +47,7 @@ class TripAdvisorGetLocationPhotosTool extends StructuredTool {
     super();
   }
 
-  async _call(input: z.infer<typeof this.schema>): Promise<LocationPhotos> {
+  async _call(input: z.infer<typeof this.schema>): Promise<any> {
     return await this.tripAdvisorService.getLocationPhotos(input.locationId);
   }
 }
@@ -65,7 +61,7 @@ class TripAdvisorGetLocationReviewsTool extends StructuredTool {
     super();
   }
 
-  async _call(input: z.infer<typeof this.schema>): Promise<LocationReviews> {
+  async _call(input: z.infer<typeof this.schema>): Promise<any> {
     return await this.tripAdvisorService.getLocationReviews(input.locationId);
   }
 }

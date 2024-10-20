@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 
 import { ConfigAdapter } from './config.adapter';
-import appConfig from './config.register';
+import { appConfig, dbConfig } from './config.register';
 
 @Global()
 @Module({
@@ -10,7 +10,7 @@ import appConfig from './config.register';
   exports: [ConfigAdapter],
   imports: [
     NestConfigModule.forRoot({
-      load: [appConfig],
+      load: [appConfig, dbConfig],
       cache: true,
       isGlobal: true,
       expandVariables: true,

@@ -6,7 +6,7 @@ export class ChatMessage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 1000 })
+  @Column({ type: 'varchar', length: 3000 })
   message: string;
 
   @Column({ type: 'enum', enum: ['user', 'assistant'] })
