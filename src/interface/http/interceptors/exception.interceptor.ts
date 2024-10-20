@@ -7,6 +7,8 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  UnprocessableEntityException,
+  HttpStatus,
 } from '@nestjs/common';
 
 import { CallHandler } from '@nestjs/common';
@@ -14,7 +16,8 @@ import { CallHandler } from '@nestjs/common';
 import { ExecutionContext } from '@nestjs/common';
 import { catchError } from 'rxjs';
 import { ZodError } from 'zod';
-import { ConflictError } from 'src/kernel/errors';
+import { ArgumentInvalidError, ConflictError } from 'src/kernel/errors';
+import { DailyChatLimitExceededError } from 'src/application/chat/chat.errors';
 
 export class ExceptionInterceptor implements NestInterceptor {
   constructor() {}
@@ -28,6 +31,14 @@ export class ExceptionInterceptor implements NestInterceptor {
 
         if (error instanceof ZodError) {
           throw new BadRequestException(error.message, { cause: error });
+        }
+
+        if (error instanceof DailyChatLimitExceededError) {
+          throw new HttpException(error.message, HttpStatus.TOO_MANY_REQUESTS, { cause: error });
+        }
+
+        if (error instanceof ArgumentInvalidError) {
+          throw new UnprocessableEntityException(error.message, { cause: error });
         }
 
         if (error instanceof ConflictError) {

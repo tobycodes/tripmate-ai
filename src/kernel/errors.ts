@@ -29,3 +29,9 @@ export class ExternalApiError extends InternalError {
     super(message, details, error);
   }
 }
+
+export class ArgumentInvalidError extends InternalError {
+  constructor(message: string, details?: any, error?: Error) {
+    super(message, details, error);
+  }
+}

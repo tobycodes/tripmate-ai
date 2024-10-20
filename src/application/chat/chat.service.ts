@@ -1,12 +1,15 @@
 import { type Writable } from 'stream';
 import { Injectable } from '@nestjs/common';
 import { AiService } from '../ai/ai.service';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { ChatMessage } from './chat.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DailyChatLimitExceededError } from './chat.errors';
 
 @Injectable()
 export class ChatService {
+  private readonly MAX_CHATS_PER_DAY = 20;
+
   constructor(
     private readonly aiService: AiService,
     @InjectRepository(ChatMessage)
@@ -14,6 +17,8 @@ export class ChatService {
   ) {}
 
   async streamChat(userId: string, message: string, writeStream: Writable) {
+    await this.checkChatLimit(userId);
+
     await this.chatMessageRepo.save({
       user: { id: userId },
       message,
@@ -52,5 +57,21 @@ export class ChatService {
     });
 
     return last10.reverse();
+  }
+
+  private async checkChatLimit(userId: string): Promise<void> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const chatCount = await this.chatMessageRepo.count({
+      where: {
+        user: { id: userId },
+        timestamp: MoreThanOrEqual(startOfDay),
+      },
+    });
+
+    if (chatCount >= this.MAX_CHATS_PER_DAY) {
+      throw new DailyChatLimitExceededError('Daily chat limit exceeded');
+    }
   }
 }
