@@ -41,36 +41,41 @@ The platform’s data model revolves around user accounts, chat messages, access
 ```mermaid
 erDiagram
     USER {
-        string id
+        uuid id
+        string firstName
+        string lastName
         string email
         string password
-        boolean is_approved
-        date created_at
-        date updated_at
-    }
-    ACCESS_REQUEST {
-        string id
-        string user_id
-        string status
-        date requested_at
-        date approved_at nullish
-    }
-    CHAT {
-        string id
-        string user_id
-        string message
-        string response nullish
-        date sent_at
-    }
-    CHAT_LIMIT {
-        string id
-        string user_id
-        int daily_count
-        date reset_time
+        boolean isApproved
+        date createdAt
+        date updatedAt
     }
 
-    USER ||--o{ ACCESS_REQUEST : has
-    USER ||--o{ CHAT : has
+    ACCESS_REQUEST {
+        uuid id
+        string firstName
+        string lastName
+        string email
+        enum status (pending, approved, rejected)
+        date requestedAt
+        date approvedAt nullish
+        date rejectedAt nullish
+        date createdAt
+        date updatedAt
+    }
+
+    CHAT_MESSAGE {
+        uuid id
+        string message
+        enum role (user, assistant)
+        timestamp timestamp
+        uuid userId FK
+        date createdAt
+        date updatedAt
+    }
+
+    USER ||--o{ ACCESS_REQUEST : "has"
+    USER ||--o{ CHAT_MESSAGE : "sends"
 ```
 
 ### Explanation:
