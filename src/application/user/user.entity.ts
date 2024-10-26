@@ -1,7 +1,8 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { ChatMessage } from '../chat/chat.entity';
+import { TABLE_NAMES } from 'src/infrastructure/database/constants';
 
-@Entity()
+@Entity({ name: TABLE_NAMES.USER })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;

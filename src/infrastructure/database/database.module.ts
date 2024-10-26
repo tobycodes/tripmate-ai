@@ -2,14 +2,14 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import { Injectable, Module } from '@nestjs/common';
 import { TypeOrmOptionsFactory } from '@nestjs/typeorm';
-import { configSchema } from './database.schemas';
 import { ConfigAdapter } from '../config/config.adapter';
+import { DATABASE_SCHEMA_NAME } from './constants';
 
 @Injectable()
-class TypeOrmConfigService implements TypeOrmOptionsFactory { 
+class TypeOrmConfigService implements TypeOrmOptionsFactory {
   constructor(private readonly configAdapter: ConfigAdapter) {}
 
-  createTypeOrmOptions(): TypeOrmModuleOptions {
+  async createTypeOrmOptions(): Promise<TypeOrmModuleOptions> {
     const config = this.configAdapter.get('db');
 
     return {
@@ -22,7 +22,9 @@ class TypeOrmConfigService implements TypeOrmOptionsFactory {
       autoLoadEntities: true,
       synchronize: false,
       migrations: ['dist/infrastructure/database/migrations/*.js'],
-      logging: true,
+      logging: this.configAdapter.get('app.isDev'),
+      schema: DATABASE_SCHEMA_NAME,
+      dropSchema: this.configAdapter.get('app.isTest'),
     };
   }
 }

@@ -3,8 +3,9 @@ import { CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
 import { Column } from 'typeorm';
 
 import { PrimaryGeneratedColumn } from 'typeorm';
+import { TABLE_NAMES } from 'src/infrastructure/database/constants';
 
-@Entity()
+@Entity({ name: TABLE_NAMES.ACCESS_REQUEST })
 export class AccessRequest {
   @PrimaryGeneratedColumn('uuid')
   id: string;

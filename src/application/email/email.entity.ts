@@ -1,7 +1,8 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { EmailStatus } from './email.types';
+import { TABLE_NAMES } from 'src/infrastructure/database/constants';
 
-@Entity()
+@Entity({ name: TABLE_NAMES.EMAIL })
 export class Email {
   @PrimaryGeneratedColumn('uuid')
   id: string;
