@@ -14,12 +14,14 @@ import { TripAdvisorModule } from './infrastructure/clients/trip_advisor/trip_ad
 import { UserModule } from './application/user/user.module';
 import { CryptoModule } from './infrastructure/crypto/crypto.module';
 import { LoggerModule } from './infrastructure/logger/logger.module';
+import { MailgunModule } from './infrastructure/clients/mailgun/mailgun.module';
 
 const appModules = [
   ConfigModule,
   CryptoModule,
   LoggerModule,
   TripAdvisorModule,
+  MailgunModule,
   AIModule,
   ChatModule,
   DatabaseModule,

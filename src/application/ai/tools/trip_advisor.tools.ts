@@ -1,12 +1,12 @@
 import { StructuredTool } from '@langchain/core/tools';
-import { TripAdvisorService } from 'src/infrastructure/clients/trip_advisor/trip_advisor.service';
 import { z } from 'zod';
+import { TripAdvisorClient } from 'src/infrastructure/clients/trip_advisor/trip_advisor.client';
 import {
   SearchLocationsParamsSchema,
   LocationDetailsParamsSchema,
   LocationPhotosParamsSchema,
   LocationReviewsParamsSchema,
-} from '../../../infrastructure/clients/trip_advisor/trip_advisor.schemas';
+} from 'src/infrastructure/clients/trip_advisor/trip_advisor.schemas';
 
 class TripAdvisorSearchLocationsTool extends StructuredTool {
   name = 'trip_advisor_search_locations';
@@ -15,12 +15,12 @@ class TripAdvisorSearchLocationsTool extends StructuredTool {
     params: SearchLocationsParamsSchema,
   });
 
-  constructor(private readonly tripAdvisorService: TripAdvisorService) {
+  constructor(private readonly tripAdvisorClient: TripAdvisorClient) {
     super();
   }
 
   async _call(input: z.infer<typeof this.schema>): Promise<any> {
-    return await this.tripAdvisorService.searchLocations(input.params);
+    return await this.tripAdvisorClient.searchLocations(input.params);
   }
 }
 
@@ -29,12 +29,12 @@ class TripAdvisorGetLocationDetailsTool extends StructuredTool {
   description = 'Get details for a specific location on TripAdvisor';
   schema = LocationDetailsParamsSchema;
 
-  constructor(private readonly tripAdvisorService: TripAdvisorService) {
+  constructor(private readonly tripAdvisorClient: TripAdvisorClient) {
     super();
   }
 
   async _call(input: z.infer<typeof this.schema>): Promise<any> {
-    return await this.tripAdvisorService.getLocationDetails(input.locationId);
+    return await this.tripAdvisorClient.getLocationDetails(input.locationId);
   }
 }
 
@@ -43,12 +43,12 @@ class TripAdvisorGetLocationPhotosTool extends StructuredTool {
   description = 'Get photos for a specific location on TripAdvisor';
   schema = LocationPhotosParamsSchema;
 
-  constructor(private readonly tripAdvisorService: TripAdvisorService) {
+  constructor(private readonly tripAdvisorClient: TripAdvisorClient) {
     super();
   }
 
   async _call(input: z.infer<typeof this.schema>): Promise<any> {
-    return await this.tripAdvisorService.getLocationPhotos(input.locationId);
+    return await this.tripAdvisorClient.getLocationPhotos(input.locationId);
   }
 }
 
@@ -57,20 +57,20 @@ class TripAdvisorGetLocationReviewsTool extends StructuredTool {
   description = 'Get reviews for a specific location on TripAdvisor';
   schema = LocationReviewsParamsSchema;
 
-  constructor(private readonly tripAdvisorService: TripAdvisorService) {
+  constructor(private readonly tripAdvisorClient: TripAdvisorClient) {
     super();
   }
 
   async _call(input: z.infer<typeof this.schema>): Promise<any> {
-    return await this.tripAdvisorService.getLocationReviews(input.locationId);
+    return await this.tripAdvisorClient.getLocationReviews(input.locationId);
   }
 }
 
-export const initTripAdvisorTools = (tripAdvisorService: TripAdvisorService) => {
+export const initTripAdvisorTools = (tripAdvisorClient: TripAdvisorClient) => {
   return [
-    new TripAdvisorSearchLocationsTool(tripAdvisorService),
-    new TripAdvisorGetLocationDetailsTool(tripAdvisorService),
-    new TripAdvisorGetLocationPhotosTool(tripAdvisorService),
-    new TripAdvisorGetLocationReviewsTool(tripAdvisorService),
+    new TripAdvisorSearchLocationsTool(tripAdvisorClient),
+    new TripAdvisorGetLocationDetailsTool(tripAdvisorClient),
+    new TripAdvisorGetLocationPhotosTool(tripAdvisorClient),
+    new TripAdvisorGetLocationReviewsTool(tripAdvisorClient),
   ];
 };

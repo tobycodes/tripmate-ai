@@ -5,7 +5,7 @@ import { ExternalApiError } from 'src/kernel/errors';
 import { LoggerAdapter } from 'src/infrastructure/logger/logger.adapter';
 
 @Injectable()
-export class TripAdvisorService {
+export class TripAdvisorClient {
   constructor(
     private readonly httpClient: AxiosInstance,
     private readonly config: Config,

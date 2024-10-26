@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { ChatOpenAI } from '@langchain/openai';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 
-import { TripAdvisorService } from 'src/infrastructure/clients/trip_advisor';
+import { TripAdvisorClient } from 'src/infrastructure/clients/trip_advisor';
 
 import { AiConfig } from './ai.schemas';
 import { initTripAdvisorTools } from './tools/trip_advisor.tools';
@@ -32,13 +32,13 @@ export class AiService {
     return this.agent.stream(request, { configurable: { thread_id: config.threadId }, streamMode: 'values' });
   }
 
-  static async init({ config, tripAdvisorService }: { config: AiConfig; tripAdvisorService: TripAdvisorService }) {
+  static async init({ config, tripAdvisorClient }: { config: AiConfig; tripAdvisorClient: TripAdvisorClient }) {
     const pgSaver = PostgresSaver.fromConnString(config.postgresUrl);
     await pgSaver.setup();
 
     const memorySaver = new MemorySaver();
     const promptString = await readFile(path.join(__dirname, 'prompt.txt'), 'utf-8');
-    const tripAdvisorTools = initTripAdvisorTools(tripAdvisorService);
+    const tripAdvisorTools = initTripAdvisorTools(tripAdvisorClient);
     const llm = new ChatOpenAI({
       openAIApiKey: config.openAiApiKey,
       modelName: config.modelName,

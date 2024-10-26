@@ -36,6 +36,7 @@
     "@nestjs/typeorm": "^10.0.2",
     "argon2": "^0.41.1",
     "axios": "^1.7.7",
+    "mailgun.js": "^10.2.3",
     "nestjs-pino": "^4.1.0",
     "pg": "^8.13.0",
     "pino-http": "^10.3.0",

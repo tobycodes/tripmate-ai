@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { TripAdvisorService } from 'src/infrastructure/clients/trip_advisor';
+import { TripAdvisorClient } from 'src/infrastructure/clients/trip_advisor';
 import { AiService } from './ai.service';
 import { configSchema } from './ai.schemas';
 import { ConfigAdapter } from 'src/infrastructure/config/config.adapter';
@@ -11,7 +11,7 @@ function buildPgUrl({ user, password, host, port, database }: DbConfigType) {
 
 const AiServiceProvider = {
   provide: AiService,
-  useFactory: async (tripAdvisorService: TripAdvisorService, configAdapter: ConfigAdapter) => {
+  useFactory: async (tripAdvisorClient: TripAdvisorClient, configAdapter: ConfigAdapter) => {
     const dbConfig = configAdapter.get('db');
     const postgresUrl = buildPgUrl(dbConfig);
 
@@ -21,9 +21,9 @@ const AiServiceProvider = {
       postgresUrl,
     });
 
-    return AiService.init({ config, tripAdvisorService });
+    return AiService.init({ config, tripAdvisorClient });
   },
-  inject: [TripAdvisorService, ConfigAdapter],
+  inject: [TripAdvisorClient, ConfigAdapter],
 };
 
 @Global()

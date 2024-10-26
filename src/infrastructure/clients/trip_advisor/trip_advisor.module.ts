@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { Global, Module } from '@nestjs/common';
-import { TripAdvisorService } from './trip_advisor.service';
+import { TripAdvisorClient } from './trip_advisor.client';
 import { configSchema } from './trip_advisor.schemas';
 import { LoggerAdapter } from 'src/infrastructure/logger/logger.adapter';
 
-const TripAdvisorServiceProvider = {
-  provide: TripAdvisorService,
+const TripAdvisorClientProvider = {
+  provide: TripAdvisorClient,
   useFactory: (logger: LoggerAdapter) => {
     const config = configSchema.parse({
       apiKey: process.env.TRIP_ADVISOR_API_KEY,
@@ -13,14 +13,14 @@ const TripAdvisorServiceProvider = {
     });
     const httpClient = axios.create({ baseURL: config.baseUrl });
 
-    return new TripAdvisorService(httpClient, config, logger);
+    return new TripAdvisorClient(httpClient, config, logger);
   },
   inject: [LoggerAdapter],
 };
 
 @Global()
 @Module({
-  providers: [TripAdvisorServiceProvider],
-  exports: [TripAdvisorService],
+  providers: [TripAdvisorClientProvider],
+  exports: [TripAdvisorClient],
 })
 export class TripAdvisorModule {}
