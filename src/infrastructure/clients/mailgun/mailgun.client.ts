@@ -44,7 +44,7 @@ export class MailgunClient {
       return { id: result.id, status: result.status };
     } catch (error) {
       this.logger.error(error);
-      throw new MailgunSendEmailError('Failed to send email', { params }, error);
+      throw new MailgunSendEmailError(`Failed to send email: ${error.message}`, { params }, error);
     }
   }
 }
