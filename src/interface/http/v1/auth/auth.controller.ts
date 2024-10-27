@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Query } from '@nestjs/common';
 import { AccessService } from 'src/application/access/access.service';
 import { LoggerAdapter } from 'src/infrastructure/logger/logger.adapter';
 import {
@@ -6,10 +6,6 @@ import {
   inquireAccessSchema,
   RequestAccessDto,
   requestAccessSchema,
-  ApproveAccessDto,
-  approveAccessSchema,
-  RejectAccessDto,
-  rejectAccessSchema,
   loginSchema,
   LoginDto,
   RegisterDto,
@@ -47,22 +43,6 @@ export class AuthController {
     return this.accessService.requestAccess(dto);
   }
 
-  @Post('access/approve')
-  async approveAccess(@Body() approveAccessDto: ApproveAccessDto) {
-    this.logger.info('Approving access');
-
-    const { id } = approveAccessSchema.parse(approveAccessDto);
-    return this.accessService.approveAccessRequest(id);
-  }
-
-  @Post('access/reject')
-  async rejectAccess(@Body() rejectAccessDto: RejectAccessDto) {
-    this.logger.info('Rejecting access');
-
-    const { id } = rejectAccessSchema.parse(rejectAccessDto);
-    return this.accessService.rejectAccessRequest(id);
-  }
-
   @Post('/login')
   async login(@Body() loginDto: LoginDto) {
     this.logger.info('Logging in');
@@ -76,8 +56,8 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto) {
     this.logger.info('Registering');
 
-    const { email, password } = registerSchema.parse(registerDto);
-    const token = await this.authService.register(email, password);
+    const { email, password, authToken } = registerSchema.parse(registerDto);
+    const token = await this.authService.register(email, password, authToken);
 
     return { token };
   }

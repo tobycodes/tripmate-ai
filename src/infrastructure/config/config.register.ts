@@ -23,33 +23,37 @@ const appVarsSchema = z.object({
   authTokenType: z.string(),
   clientUrl: z.string(),
   debugMode: z.boolean().default(false),
+  accessAdminEmail: z.string().email(),
 });
+
 const appConfig = registerAs('app', () => {
-  const { name, port, env, jwtSecret, cryptoSecret, hostUrl, authTokenType, clientUrl, debugMode } = parseEnvVars();
+  const envVars = parseEnvVars();
 
   const corsConfig: CorsOptions = {
-    origin: [...splitString(hostUrl), ...splitString(clientUrl)],
+    origin: [...splitString(envVars.hostUrl), ...splitString(envVars.clientUrl)],
   };
 
-  const isDev = env === TargetEnv.DEVELOPMENT || env === TargetEnv.LOCAL;
+  const isDev = envVars.env === TargetEnv.DEVELOPMENT || envVars.env === TargetEnv.LOCAL;
 
   return {
-    name,
-    port,
-    env,
-    jwtSecret,
-    cryptoSecret,
-    hostUrl,
+    name: envVars.name,
+    port: envVars.port,
+    env: envVars.env,
+    jwtSecret: envVars.jwtSecret,
+    cryptoSecret: envVars.cryptoSecret,
+    hostUrl: envVars.hostUrl,
     version: process.env.npm_package_version || '0.0.1',
-    isDebugMode: debugMode,
-    isProd: env === TargetEnv.PRODUCTION,
-    authTokenType,
-    clientUrl,
+    apiVersion: 'v1',
+    isDebugMode: envVars.debugMode,
+    isProd: envVars.env === TargetEnv.PRODUCTION,
+    authTokenType: envVars.authTokenType,
+    clientUrl: envVars.clientUrl,
     isDev,
-    isLocal: env === TargetEnv.LOCAL,
-    isTest: env === TargetEnv.TEST,
+    isLocal: envVars.env === TargetEnv.LOCAL,
+    isTest: envVars.env === TargetEnv.TEST,
     cors: corsConfig,
     uploadFolder: '/tmp/uploads',
+    accessAdminEmail: envVars.accessAdminEmail,
   };
 });
 
@@ -64,6 +68,7 @@ const parseEnvVars = () => {
     authTokenType: process.env.AUTH_TOKEN_TYPE,
     clientUrl: process.env.CLIENT_URL,
     debugMode: process.env.DEBUG_MODE === 'true',
+    accessAdminEmail: process.env.ACCESS_ADMIN_EMAIL,
   });
 };
 

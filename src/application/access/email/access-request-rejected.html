@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        color: #333333;
+        background-color: #f7f9fc;
+        margin: 0;
+        padding: 0;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      }
+      .header {
+        background-color: #ff6b6b;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+      }
+      .content {
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .footer {
+        font-size: 0.8em;
+        text-align: center;
+        color: #888888;
+        padding: 15px;
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <h1>Tripmate AI Access Request</h1>
+      </div>
+
+      <div class="content">
+        <p>Hey {firstName},</p>
+        <p>
+          Thank you for your interest in <strong>Tripmate AI</strong>. After reviewing your request, we’re unable to
+          approve access at this time.
+        </p>
+        <p>
+          If you have any questions or would like to reapply in the future, please feel free to reach out to our support
+          team at <a href="mailto:{supportEmail}">{supportEmail}</a>.
+        </p>
+        <p>Thank you for your understanding!</p>
+      </div>
+
+      <div class="footer">
+        <p>&copy; Tripmate AI 2024 | All Rights Reserved</p>
+      </div>
+    </div>
+  </body>
+</html>

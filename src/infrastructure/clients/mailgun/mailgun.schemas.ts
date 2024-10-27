@@ -10,7 +10,7 @@ export const mailgunConfigSchema = z.object({
 const receiverSchema = z.union([z.string().email(), z.array(z.string().email())]);
 
 export const mailgunSendEmailSchema = z.object({
-  from: z.string().email().optional(),
+  from: z.string().optional(),
   to: receiverSchema,
   cc: receiverSchema.optional(),
   bcc: receiverSchema.optional(),

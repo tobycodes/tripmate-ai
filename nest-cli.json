@@ -8,6 +8,10 @@
       {
         "include": "**/*.txt",
         "watchAssets": true
+      },
+      {
+        "include": "**/*.html",
+        "watchAssets": true
       }
     ]
   }

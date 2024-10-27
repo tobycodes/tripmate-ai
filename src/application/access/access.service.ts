@@ -11,6 +11,7 @@ import { AccessApprovedEvent, AccessRejectedEvent, AccessRequestedEvent } from '
 import { CreateAccessRequestDto, createAccessRequestSchema } from './access.schema';
 import { AccessRequestStatus } from './access.types';
 import { NotFoundError } from 'src/kernel/errors';
+import { LoggerAdapter } from 'src/infrastructure/logger/logger.adapter';
 
 @Injectable()
 export class AccessService {
@@ -20,6 +21,7 @@ export class AccessService {
     @InjectRepository(AccessRequest) private readonly accessRequestRepo: Repository<AccessRequest>,
     private readonly userService: UserService,
     private readonly eventPublisher: EventPublisher,
+    private readonly logger: LoggerAdapter,
   ) {}
 
   private async isAvailable(): Promise<boolean> {
@@ -67,13 +69,7 @@ export class AccessService {
 
     await this.accessRequestRepo.save(newAccessRequest);
 
-    this.eventPublisher.publish(
-      new AccessRequestedEvent({
-        id: newAccessRequest.id,
-        email: newAccessRequest.email,
-        status: newAccessRequest.status,
-      }),
-    );
+    this.publishEvent(newAccessRequest);
 
     return newAccessRequest;
   }
@@ -98,13 +94,7 @@ export class AccessService {
 
     await this.accessRequestRepo.save(accessRequest);
 
-    this.eventPublisher.publish(
-      new AccessApprovedEvent({
-        id: accessRequest.id,
-        email: accessRequest.email,
-        status: accessRequest.status,
-      }),
-    );
+    this.publishEvent(accessRequest);
 
     return accessRequest;
   }
@@ -121,14 +111,31 @@ export class AccessService {
 
     await this.accessRequestRepo.save(accessRequest);
 
-    this.eventPublisher.publish(
-      new AccessRejectedEvent({
-        id: accessRequest.id,
-        email: accessRequest.email,
-        status: accessRequest.status,
-      }),
-    );
+    this.publishEvent(accessRequest);
 
     return accessRequest;
+  }
+
+  private publishEvent(accessRequest: AccessRequest) {
+    const payload = {
+      id: accessRequest.id,
+      email: accessRequest.email,
+      status: accessRequest.status,
+    };
+
+    switch (accessRequest.status) {
+      case AccessRequestStatus.PENDING:
+        this.eventPublisher.publish(new AccessRequestedEvent(payload));
+        break;
+      case AccessRequestStatus.APPROVED:
+        this.eventPublisher.publish(new AccessApprovedEvent(payload));
+        break;
+      case AccessRequestStatus.REJECTED:
+        this.eventPublisher.publish(new AccessRejectedEvent(payload));
+        break;
+      default:
+        this.logger.error('Unknown access request status!', { accessRequestId: accessRequest.id });
+        break;
+    }
   }
 }

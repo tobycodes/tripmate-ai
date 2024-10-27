@@ -2,14 +2,12 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { CryptoAdapter } from 'src/infrastructure/crypto/crypto.adapter';
-import { ConflictError } from 'src/kernel/errors';
+import { ArgumentInvalidError, ConflictError } from 'src/kernel/errors';
 import { AccessService } from '../access/access.service';
 import { JwtUser } from './auth.types';
 
 @Injectable()
 export class AuthService {
-  private jwtSecret: string;
-
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
@@ -28,7 +26,13 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async register(email: string, password: string) {
+  async register(email: string, password: string, authToken: string) {
+    try {
+      await this.jwtService.verifyAsync(authToken);
+    } catch (error) {
+      throw new ArgumentInvalidError('Invalid registration token');
+    }
+
     const existingUser = await this.userService.getByEmail(email);
     if (existingUser) {
       throw new ConflictError('User already exists', { email });
