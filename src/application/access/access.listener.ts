@@ -26,18 +26,18 @@ export class AccessRequestListener {
 
   @OnEvent(AccessRequestedEvent)
   async handleAccessRequestedEvent(event: AccessRequestedEvent) {
-    this.logger.info('Access requested event received!', { event });
+    this.logger.info({ event }, 'Access requested event received!');
     const { email } = event.payload;
 
     const accessRequest = await this.accessService.getAccessRequest(email);
 
     if (!accessRequest) {
-      this.logger.error('Access request not found!', { email });
+      this.logger.error({ email }, 'Access request not found!');
       return;
     }
 
     if (accessRequest.status !== AccessRequestStatus.PENDING) {
-      this.logger.error('Access request is not pending!', { email });
+      this.logger.error({ email }, 'Access request is not pending!');
       return;
     }
 
@@ -71,18 +71,18 @@ export class AccessRequestListener {
 
   @OnEvent(AccessApprovedEvent)
   async handleAccessApprovedEvent(event: AccessApprovedEvent) {
-    this.logger.info('Access approved event received!', { event });
+    this.logger.info({ event }, 'Access approved event received!');
     const { email } = event.payload;
 
     const accessRequest = await this.accessService.getAccessRequest(email);
 
     if (!accessRequest) {
-      this.logger.error('Access request not found!', { email });
+      this.logger.error({ email }, 'Access request not found!');
       return;
     }
 
     if (accessRequest.status !== AccessRequestStatus.APPROVED) {
-      this.logger.error('Access request is not approved!', { email });
+      this.logger.error({ email }, 'Access request is not approved!');
       return;
     }
 
@@ -112,18 +112,18 @@ export class AccessRequestListener {
 
   @OnEvent(AccessRejectedEvent)
   async handleAccessRejectedEvent(event: AccessRejectedEvent) {
-    this.logger.info('Access rejected event received!', { event });
+    this.logger.info({ event }, 'Access rejected event received!');
     const { email } = event.payload;
 
     const accessRequest = await this.accessService.getAccessRequest(email);
 
     if (!accessRequest) {
-      this.logger.error('Access request not found!', { email });
+      this.logger.error({ email }, 'Access request not found!');
       return;
     }
 
     if (accessRequest.status !== AccessRequestStatus.REJECTED) {
-      this.logger.error('Access request is not rejected!', { email });
+      this.logger.error({ email }, 'Access request is not rejected!');
       return;
     }
 

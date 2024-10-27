@@ -29,11 +29,11 @@ export class EmailService {
       email.status = EmailStatus.SENT;
       email.metadata = { mailgunResult: result };
 
-      this.logger.info('Email sent!', { emailId: email.id });
+      this.logger.info({ emailId: email.id }, 'Email sent!');
     } catch (error) {
       email.status = EmailStatus.FAILED;
       email.metadata = { mailgunError: error.message };
-      this.logger.error('Failed to send email!', { emailId: email.id });
+      this.logger.error({ emailId: email.id }, 'Failed to send email!');
     } finally {
       await this.emailRepository.save(email);
     }

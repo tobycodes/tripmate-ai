@@ -134,7 +134,7 @@ export class AccessService {
         this.eventPublisher.publish(new AccessRejectedEvent(payload));
         break;
       default:
-        this.logger.error('Unknown access request status!', { accessRequestId: accessRequest.id });
+        this.logger.error({ accessRequestId: accessRequest.id }, 'Unknown access request status!');
         break;
     }
   }

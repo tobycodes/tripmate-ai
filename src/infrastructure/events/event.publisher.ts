@@ -13,7 +13,7 @@ export class EventPublisher {
   publish(event: DomainEvent<any>) {
     const { name, ...data } = event;
 
-    this.logger.info('Publishing event...', { event: data });
+    this.logger.info({ event: data }, 'Publishing event...');
 
     return this.emitter.emit(name, data);
   }

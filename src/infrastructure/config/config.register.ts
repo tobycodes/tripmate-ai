@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { registerAs } from '@nestjs/config';
 import type { ConfigType } from '@nestjs/config';
-import { env } from 'process';
 import { z } from 'zod';
 
 export enum TargetEnv {

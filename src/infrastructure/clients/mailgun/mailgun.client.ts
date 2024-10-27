@@ -40,7 +40,7 @@ export class MailgunClient {
     try {
       this.logger.info('Sending email...');
       const result = await this.client.messages.create(this.config.domain, data);
-      this.logger.info('Email sent successfully', { result });
+      this.logger.info({ result }, 'Email sent successfully');
       return { id: result.id, status: result.status };
     } catch (error) {
       this.logger.error(error);
