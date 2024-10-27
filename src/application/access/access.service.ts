@@ -1,21 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from '../user/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import { EventPublisher } from 'src/infrastructure/events/event.publisher';
+
+import { UserService } from '../user/user.service';
+
 import { AccessRequest } from './access.entity';
+import { AccessApprovedEvent, AccessRejectedEvent, AccessRequestedEvent } from './access.events';
 import { CreateAccessRequestDto, createAccessRequestSchema } from './access.schema';
+import { AccessRequestStatus } from './access.types';
+import { NotFoundError } from 'src/kernel/errors';
 
 @Injectable()
 export class AccessService {
   private MAX_FREE_SLOTS = 10;
 
   constructor(
-    private readonly userService: UserService,
     @InjectRepository(AccessRequest) private readonly accessRequestRepo: Repository<AccessRequest>,
+    private readonly userService: UserService,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
   private async isAvailable(): Promise<boolean> {
-    const accessRequestCount = await this.accessRequestRepo.count({ where: { status: 'approved' } });
+    const accessRequestCount = await this.accessRequestRepo.count({ where: { status: AccessRequestStatus.APPROVED } });
 
     return accessRequestCount < this.MAX_FREE_SLOTS;
   }
@@ -30,7 +38,11 @@ export class AccessService {
     const accessRequest = await this.accessRequestRepo.findOneBy({ email });
 
     if (accessRequest) {
-      return { hasAccount: false, canAccess: accessRequest.status === 'approved', accessRequest };
+      return {
+        hasAccount: false,
+        accessRequest,
+        canAccess: accessRequest.status === AccessRequestStatus.APPROVED,
+      };
     }
 
     const freeSlot = await this.isAvailable();
@@ -49,40 +61,74 @@ export class AccessService {
     const newAccessRequest = this.accessRequestRepo.create(parsedDto);
 
     if (await this.isAvailable()) {
-      newAccessRequest.status = 'approved';
+      newAccessRequest.status = AccessRequestStatus.APPROVED;
       newAccessRequest.approvedAt = new Date();
     }
 
-    return this.accessRequestRepo.save(newAccessRequest);
+    await this.accessRequestRepo.save(newAccessRequest);
+
+    this.eventPublisher.publish(
+      new AccessRequestedEvent({
+        id: newAccessRequest.id,
+        email: newAccessRequest.email,
+        status: newAccessRequest.status,
+      }),
+    );
+
+    return newAccessRequest;
   }
 
   async getAccessRequest(email: string): Promise<AccessRequest | null> {
     return this.accessRequestRepo.findOneBy({ email });
   }
 
+  async getAccessRequestById(id: string): Promise<AccessRequest | null> {
+    return this.accessRequestRepo.findOneBy({ id });
+  }
+
   async approveAccessRequest(id: string): Promise<AccessRequest> {
-    const accessRequest = await this.accessRequestRepo.findOne({ where: { id } });
+    const accessRequest = await this.getAccessRequestById(id);
 
     if (!accessRequest) {
-      throw new Error('Access request not found');
+      throw new NotFoundError('Access request not found', { accessRequestId: id });
     }
 
-    accessRequest.status = 'approved';
+    accessRequest.status = AccessRequestStatus.APPROVED;
     accessRequest.approvedAt = new Date();
 
-    return this.accessRequestRepo.save(accessRequest);
+    await this.accessRequestRepo.save(accessRequest);
+
+    this.eventPublisher.publish(
+      new AccessApprovedEvent({
+        id: accessRequest.id,
+        email: accessRequest.email,
+        status: accessRequest.status,
+      }),
+    );
+
+    return accessRequest;
   }
 
   async rejectAccessRequest(id: string): Promise<AccessRequest> {
-    const accessRequest = await this.accessRequestRepo.findOne({ where: { id } });
+    const accessRequest = await this.getAccessRequestById(id);
 
     if (!accessRequest) {
-      throw new Error('Access request not found');
+      throw new NotFoundError('Access request not found', { accessRequestId: id });
     }
 
-    accessRequest.status = 'rejected';
+    accessRequest.status = AccessRequestStatus.REJECTED;
     accessRequest.rejectedAt = new Date();
 
-    return this.accessRequestRepo.save(accessRequest);
+    await this.accessRequestRepo.save(accessRequest);
+
+    this.eventPublisher.publish(
+      new AccessRejectedEvent({
+        id: accessRequest.id,
+        email: accessRequest.email,
+        status: accessRequest.status,
+      }),
+    );
+
+    return accessRequest;
   }
 }

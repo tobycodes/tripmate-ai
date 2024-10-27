@@ -1,9 +1,8 @@
-import { CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { Column } from 'typeorm';
-
-import { PrimaryGeneratedColumn } from 'typeorm';
 import { TABLE_NAMES } from 'src/infrastructure/database/constants';
+
+import { AccessRequestStatus } from './access.types';
 
 @Entity({ name: TABLE_NAMES.ACCESS_REQUEST })
 export class AccessRequest {
@@ -22,8 +21,8 @@ export class AccessRequest {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   requestedAt: Date;
 
-  @Column({ type: 'enum', enum: ['pending', 'approved', 'rejected'], default: 'pending' })
-  status: 'pending' | 'approved' | 'rejected';
+  @Column({ type: 'enum', enum: AccessRequestStatus, default: AccessRequestStatus.PENDING })
+  status: AccessRequestStatus;
 
   @Column({ type: 'timestamp', nullable: true })
   approvedAt: Date | null;

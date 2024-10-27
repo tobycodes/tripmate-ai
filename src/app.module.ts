@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import { AccessModule } from './application/access/access.module';
 import { AIModule } from './application/ai/ai.module';
@@ -15,19 +16,21 @@ import { UserModule } from './application/user/user.module';
 import { CryptoModule } from './infrastructure/crypto/crypto.module';
 import { LoggerModule } from './infrastructure/logger/logger.module';
 import { MailgunModule } from './infrastructure/clients/mailgun/mailgun.module';
+import { EventModule } from './infrastructure/events/event.module';
 
 const appModules = [
   ConfigModule,
   CryptoModule,
   LoggerModule,
+  EventModule,
   TripAdvisorModule,
   MailgunModule,
-  AIModule,
-  ChatModule,
   DatabaseModule,
+  AIModule,
   UserModule,
-  AccessModule,
   AuthModule,
+  AccessModule,
+  ChatModule,
 ];
 
 const nestModules = [

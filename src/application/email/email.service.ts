@@ -6,6 +6,7 @@ import { Email } from './email.entity';
 import { LoggerAdapter } from 'src/infrastructure/logger/logger.adapter';
 import { MailgunSendEmailParams } from 'src/infrastructure/clients/mailgun/mailgun.schemas';
 import { EmailStatus } from './email.types';
+import { OnEvent } from 'src/infrastructure/events/event.decorator';
 
 @Injectable()
 export class EmailService {

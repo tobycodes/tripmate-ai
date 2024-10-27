@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { CryptoAdapter } from 'src/infrastructure/crypto/crypto.adapter';
-import { ConfigAdapter } from 'src/infrastructure/config/config.adapter';
 import { ConflictError } from 'src/kernel/errors';
 import { AccessService } from '../access/access.service';
 import { JwtUser } from './auth.types';
@@ -15,11 +14,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly crypto: CryptoAdapter,
-    private readonly config: ConfigAdapter,
     private readonly accessService: AccessService,
-  ) {
-    this.jwtSecret = this.config.get('app.jwtSecret');
-  }
+  ) {}
 
   async login(email: string, password: string) {
     const user = await this.userService.getByEmailOrThrow(email);
@@ -29,7 +25,7 @@ export class AuthService {
     }
 
     const payload: JwtUser = { id: user.id, email: user.email, isApproved: user.isApproved };
-    return this.jwtService.sign(payload, { secret: this.jwtSecret, expiresIn: '1d' });
+    return this.jwtService.sign(payload);
   }
 
   async register(email: string, password: string) {
@@ -69,10 +65,10 @@ export class AuthService {
     await this.userService.approve(user.id);
 
     const payload: JwtUser = { id: user.id, email: user.email, isApproved: user.isApproved };
-    return this.jwtService.sign(payload, { secret: this.jwtSecret, expiresIn: '1d' });
+    return this.jwtService.sign(payload);
   }
 
   async verifyToken(token: string): Promise<JwtUser> {
-    return this.jwtService.verify(token, { secret: this.jwtSecret });
+    return this.jwtService.verify(token);
   }
 }
