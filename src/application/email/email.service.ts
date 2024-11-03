@@ -40,4 +40,8 @@ export class EmailService {
 
     return email;
   }
+
+  public parseTemplate(template: string, data: Record<string, string>): string {
+    return template.replace(/{(\w+)}/g, (match, p1) => data[p1] || match);
+  }
 }

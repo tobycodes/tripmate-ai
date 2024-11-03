@@ -54,7 +54,7 @@ export class AccessRequestListener {
     const rejectUrl = `${hostFullUrl}/admin/access/reject?token=${accessToken}`;
 
     const template = await fs.readFile(path.join(__dirname, 'email/access-request.html'), 'utf-8');
-    const html = this.parseTemplate(template, {
+    const html = this.emailService.parseTemplate(template, {
       name: this.getAccessRequestName(accessRequest),
       email,
       createdAt: this.formatDate(accessRequest.createdAt),
@@ -97,7 +97,7 @@ export class AccessRequestListener {
     const accountCreationLink = `${this.config.get('app.clientUrl')}/auth/${accessToken}`;
 
     const template = await fs.readFile(path.join(__dirname, 'email/access-request-approved.html'), 'utf-8');
-    const html = this.parseTemplate(template, {
+    const html = this.emailService.parseTemplate(template, {
       firstName: accessRequest.firstName,
       accountCreationLink,
     });
@@ -127,7 +127,7 @@ export class AccessRequestListener {
     }
 
     const template = await fs.readFile(path.join(__dirname, 'email/access-request-rejected.html'), 'utf-8');
-    const html = this.parseTemplate(template, {
+    const html = this.emailService.parseTemplate(template, {
       name: this.getAccessRequestName(accessRequest),
     });
 
@@ -136,10 +136,6 @@ export class AccessRequestListener {
       subject: 'Access rejected!',
       content: { html },
     });
-  }
-
-  private parseTemplate(template: string, data: Record<string, string>): string {
-    return template.replace(/{(\w+)}/g, (match, p1) => data[p1] || match);
   }
 
   private getAccessRequestName(accessRequest: AccessRequest): string {

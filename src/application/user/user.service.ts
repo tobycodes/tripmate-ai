@@ -46,7 +46,7 @@ export class UserService {
   }
 
   async get(id: string): Promise<User> {
-    const user = await this.get(id);
+    const user = await this.safeGet(id);
 
     if (!user) {
       throw new NotFoundError(`User ${id} not found`);
@@ -60,7 +60,7 @@ export class UserService {
   }
 
   async getByEmail(email: string): Promise<User> {
-    const user = await this.getByEmail(email);
+    const user = await this.safeGetByEmail(email);
 
     if (!user) {
       throw new NotFoundError(`User with email ${email} not found`);

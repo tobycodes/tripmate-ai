@@ -5,6 +5,8 @@ import { CryptoAdapter } from 'src/infrastructure/crypto/crypto.adapter';
 import { ArgumentInvalidError, ConflictError, OperationError } from 'src/kernel/errors';
 import { AccessService } from '../access/access.service';
 import { JwtUser } from './auth.types';
+import { EventPublisher } from 'src/infrastructure/events/event.publisher';
+import { UserRegisteredEvent } from './auth.events';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +15,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly crypto: CryptoAdapter,
     private readonly accessService: AccessService,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
   async login(email: string, password: string) {
@@ -28,17 +31,21 @@ export class AuthService {
     }
 
     const payload: JwtUser = { id: user.id, email: user.email, isApproved: user.isApproved };
-    return this.jwtService.sign(payload);
+    return this.jwtService.signAsync(payload);
   }
 
   async register(email: string, password: string, authToken: string) {
     try {
-      await this.jwtService.verifyAsync(authToken);
+      const data = await this.jwtService.verifyAsync(authToken);
+
+      if (data.email !== email) {
+        throw new Error('token email is not request email');
+      }
     } catch (error) {
       throw new ArgumentInvalidError('Invalid registration token');
     }
 
-    const existingUser = await this.userService.getByEmail(email);
+    const existingUser = await this.userService.safeGetByEmail(email);
     if (existingUser) {
       throw new ConflictError('User already exists', { email });
     }
@@ -73,11 +80,19 @@ export class AuthService {
 
     await this.userService.approve(user.id);
 
+    this.eventPublisher.publish(
+      new UserRegisteredEvent({
+        email: user.email,
+        firstName: user.firstName,
+        userId: user.id,
+      }),
+    );
+
     const payload: JwtUser = { id: user.id, email: user.email, isApproved: user.isApproved };
-    return this.jwtService.sign(payload);
+    return this.jwtService.signAsync(payload);
   }
 
   async verifyToken(token: string): Promise<JwtUser> {
-    return this.jwtService.verify(token);
+    return this.jwtService.verifyAsync(token);
   }
 }

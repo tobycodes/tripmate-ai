@@ -31,7 +31,7 @@ export class AccessService {
   }
 
   async hasAccess(email: string): Promise<{ hasAccount: boolean; accessRequest: AccessRequest | null }> {
-    const user = await this.userService.getByEmail(email);
+    const user = await this.userService.safeGetByEmail(email);
 
     if (user) {
       return { hasAccount: true, accessRequest: null };

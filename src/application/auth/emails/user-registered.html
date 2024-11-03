@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to Tripmate AI</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f7f7f7;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #2d9cdb; /* Tripmate AI primary blue */
+        padding: 20px;
+        text-align: center;
+        color: #ffffff;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        padding: 20px;
+        color: #333333;
+        line-height: 1.6;
+      }
+      .content h2 {
+        color: #1e3a8a; /* Tripmate AI dark color */
+      }
+      .cta-button {
+        display: inline-block;
+        padding: 12px 24px;
+        margin: 20px 0;
+        background-color: #2d9cdb;
+        color: #ffffff !important;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 6px;
+        transition: background-color 0.3s;
+      }
+      .cta-button:hover {
+        background-color: #1e3a8a; /* Tripmate AI dark color */
+      }
+      .cta-button:visited {
+        color: #ffffff !important;
+      }
+      .footer {
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #888888;
+      }
+      .footer a {
+        color: #2d9cdb;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>Welcome to Tripmate AI!</h1>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <h2>Hey {firstName}!</h2>
+        <p>Welcome to <strong>Tripmate AI</strong>! We’re thrilled to have you on board.</p>
+
+        <h3>What is Tripmate AI?</h3>
+        <p>
+          Tripmate AI is your intelligent companion for all things travel, food, and adventure. Whether you’re planning
+          a weekend getaway, looking for the best local cuisine, or seeking unique experiences in a new city, Tripmate
+          AI is here to make your journey unforgettable.
+        </p>
+
+        <h3>What You’ll Get with Tripmate AI</h3>
+        <ul>
+          <li><strong>Tailored Travel Guides</strong>: Discover destinations that match your style and preferences.</li>
+          <li>
+            <strong>Food Recommendations</strong>: Find local dishes, cafes, and restaurants that’ll make your taste
+            buds dance.
+          </li>
+          <li>
+            <strong>Activity Suggestions</strong>: From hidden gems to popular hotspots, get suggestions that turn any
+            trip into an experience.
+          </li>
+        </ul>
+
+        <h3>How to Make the Most of Tripmate AI</h3>
+        <p>To get the best recommendations, try asking questions like:</p>
+        <ul>
+          <li>"What are the best places to visit in [City]?"</li>
+          <li>"Can you recommend a family-friendly restaurant?"</li>
+          <li>"Any off-the-beaten-path ideas for [Destination]?"</li>
+        </ul>
+        <p>We’re here to make every adventure unique, so feel free to get specific with your queries!</p>
+
+        <!-- CTA Button -->
+        <a href="{ctaLink}" class="cta-button">Start Exploring Now</a>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>
+          If you have any questions or need help, reach out to our team at
+          <a href="mailto:{supportEmail}">{supportEmail}</a>.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

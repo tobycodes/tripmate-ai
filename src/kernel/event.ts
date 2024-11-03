@@ -6,6 +6,7 @@ export const eventTypeSchema = z.union([
   z.literal('access.requested'),
   z.literal('access.approved'),
   z.literal('access.rejected'),
+  z.literal('auth.user-registered'),
 ]);
 
 export type EventEnumType = z.infer<typeof eventTypeSchema>;
