@@ -1,4 +1,4 @@
-import { DomainEvent } from 'src/kernel/event';
+import { DomainEvent, EventEnumType } from 'src/kernel/event';
 import { AccessRequestStatus } from './access.types';
 
 export type AccessEventPayload = {
@@ -9,18 +9,24 @@ export type AccessEventPayload = {
 
 export class AccessRequestedEvent extends DomainEvent<AccessEventPayload> {
   constructor(payload: AccessEventPayload) {
-    super('access.requested', payload);
+    super(AccessRequestedEvent.type, payload);
   }
+
+  static type: EventEnumType = 'access.requested';
 }
 
 export class AccessApprovedEvent extends DomainEvent<AccessEventPayload> {
   constructor(payload: AccessEventPayload) {
-    super('access.approved', payload);
+    super(AccessApprovedEvent.type, payload);
   }
+
+  static type: EventEnumType = 'access.approved';
 }
 
 export class AccessRejectedEvent extends DomainEvent<AccessEventPayload> {
   constructor(payload: AccessEventPayload) {
-    super('access.rejected', payload);
+    super(AccessRejectedEvent.type, payload);
   }
+
+  static type: EventEnumType = 'access.rejected';
 }

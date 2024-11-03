@@ -3,4 +3,4 @@ import { OnEventOptions } from '@nestjs/event-emitter/dist/interfaces';
 import { DomainEvent } from 'src/kernel/event';
 
 export const OnEvent = (eventClass: new (data: any) => DomainEvent<any>, eventOptions?: OnEventOptions) =>
-  OnNestEvent(eventClass.name, eventOptions);
+  OnNestEvent((eventClass as any).type, eventOptions);

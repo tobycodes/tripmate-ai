@@ -53,8 +53,8 @@ export class AccessRequestListener {
     const approveUrl = `${hostFullUrl}/admin/access/approve?token=${accessToken}`;
     const rejectUrl = `${hostFullUrl}/admin/access/reject?token=${accessToken}`;
 
-    const requestTemplate = await fs.readFile(path.join(__dirname, 'email/access-request.html'), 'utf-8');
-    const html = this.parseTemplate(requestTemplate, {
+    const template = await fs.readFile(path.join(__dirname, 'email/access-request.html'), 'utf-8');
+    const html = this.parseTemplate(template, {
       name: this.getAccessRequestName(accessRequest),
       email,
       createdAt: this.formatDate(accessRequest.createdAt),
@@ -94,11 +94,10 @@ export class AccessRequestListener {
       { expiresIn: '7d' },
     );
 
-    const hostFullUrl = `${this.config.get('app.hostUrl')}/${this.config.get('app.apiVersion')}`;
-    const accountCreationLink = `${hostFullUrl}/auth/register?token=${accessToken}`;
+    const accountCreationLink = `${this.config.get('app.clientUrl')}/auth/${accessToken}`;
 
-    const requestTemplate = await fs.readFile(path.join(__dirname, 'email/access-request-approved.html'), 'utf-8');
-    const html = this.parseTemplate(requestTemplate, {
+    const template = await fs.readFile(path.join(__dirname, 'email/access-request-approved.html'), 'utf-8');
+    const html = this.parseTemplate(template, {
       firstName: accessRequest.firstName,
       accountCreationLink,
     });
@@ -127,8 +126,8 @@ export class AccessRequestListener {
       return;
     }
 
-    const requestTemplate = await fs.readFile(path.join(__dirname, 'email/access-request-rejected.html'), 'utf-8');
-    const html = this.parseTemplate(requestTemplate, {
+    const template = await fs.readFile(path.join(__dirname, 'email/access-request-rejected.html'), 'utf-8');
+    const html = this.parseTemplate(template, {
       name: this.getAccessRequestName(accessRequest),
     });
 

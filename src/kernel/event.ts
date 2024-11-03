@@ -11,15 +11,15 @@ export const eventTypeSchema = z.union([
 export type EventEnumType = z.infer<typeof eventTypeSchema>;
 
 export abstract class DomainEvent<T> {
-  name: string;
   id: string;
   createdAt: number;
+
+  static type: EventEnumType;
 
   constructor(
     public readonly type: EventEnumType,
     public readonly payload: T,
   ) {
-    this.name = this.constructor.name;
     this.id = randomUUID();
     this.createdAt = Date.now();
   }
