@@ -7,35 +7,45 @@ import { ConflictError, NotFoundError } from 'src/kernel/errors';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {}
+  constructor(@InjectRepository(User) private readonly repo: Repository<User>) {}
 
   async create(user: CreateUserDto): Promise<User> {
     const parsedUser = createUserSchema.parse(user);
-    const existingUser = await this.userRepository.findOneBy({ email: parsedUser.email });
+    const existingUser = await this.repo.findOneBy({ email: parsedUser.email });
 
     if (existingUser) {
       throw new ConflictError(`User with email ${parsedUser.email} already exists`);
     }
 
-    const newUser = this.userRepository.create(parsedUser);
+    const newUser = this.repo.create(parsedUser);
 
-    return this.userRepository.save(newUser);
+    return this.repo.save(newUser);
   }
 
   async update(id: string, user: UpdateUserDto): Promise<User | null> {
-    const existingUser = await this.getOrThrow(id);
+    const existingUser = await this.get(id);
     const parsedUser = updateUserSchema.parse(user);
 
     Object.assign(existingUser, parsedUser);
 
-    return this.userRepository.save(existingUser);
+    return this.repo.save(existingUser);
   }
 
-  async get(id: string): Promise<User | null> {
-    return this.userRepository.findOneBy({ id });
+  async safeGet(id: string): Promise<User | null> {
+    return this.repo.findOneBy({ id });
   }
 
-  async getOrThrow(id: string): Promise<User> {
+  async getFullUserByEmail(email: string) {
+    const user = await this.repo.createQueryBuilder('u').select('*').where('u.email = :email', { email }).getRawOne();
+
+    if (!user) {
+      throw new NotFoundError(`User with email ${email} not found`);
+    }
+
+    return user;
+  }
+
+  async get(id: string): Promise<User> {
     const user = await this.get(id);
 
     if (!user) {
@@ -45,11 +55,11 @@ export class UserService {
     return user;
   }
 
-  async getByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOneBy({ email });
+  async safeGetByEmail(email: string): Promise<User | null> {
+    return this.repo.findOneBy({ email });
   }
 
-  async getByEmailOrThrow(email: string): Promise<User> {
+  async getByEmail(email: string): Promise<User> {
     const user = await this.getByEmail(email);
 
     if (!user) {
@@ -60,16 +70,16 @@ export class UserService {
   }
 
   async reject(id: string): Promise<void> {
-    const user = await this.getOrThrow(id);
-    await this.userRepository.update(user.id, { isApproved: false });
+    const user = await this.get(id);
+    await this.repo.update(user.id, { isApproved: false });
   }
 
   async approve(id: string): Promise<void> {
-    const user = await this.getOrThrow(id);
-    await this.userRepository.update(user.id, { isApproved: true });
+    const user = await this.get(id);
+    await this.repo.update(user.id, { isApproved: true });
   }
 
   async count(): Promise<number> {
-    return this.userRepository.count();
+    return this.repo.count();
   }
 }

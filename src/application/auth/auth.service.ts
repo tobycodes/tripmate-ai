@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { CryptoAdapter } from 'src/infrastructure/crypto/crypto.adapter';
-import { ArgumentInvalidError, ConflictError } from 'src/kernel/errors';
+import { ArgumentInvalidError, ConflictError, OperationError } from 'src/kernel/errors';
 import { AccessService } from '../access/access.service';
 import { JwtUser } from './auth.types';
 
@@ -16,10 +16,15 @@ export class AuthService {
   ) {}
 
   async login(email: string, password: string) {
-    const user = await this.userService.getByEmailOrThrow(email);
-    const isPasswordValid = await this.crypto.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+    const user = await this.userService.getFullUserByEmail(email);
+
+    try {
+      const isPasswordValid = await this.crypto.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+    } catch (error) {
+      throw new OperationError(error.message, error);
     }
 
     const payload: JwtUser = { id: user.id, email: user.email, isApproved: user.isApproved };

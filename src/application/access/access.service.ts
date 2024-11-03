@@ -30,11 +30,11 @@ export class AccessService {
     return accessRequestCount < this.MAX_FREE_SLOTS;
   }
 
-  async hasAccess(email: string): Promise<{ hasAccount: boolean; canAccess?: boolean; accessRequest?: AccessRequest }> {
+  async hasAccess(email: string): Promise<{ hasAccount: boolean; accessRequest: AccessRequest | null }> {
     const user = await this.userService.getByEmail(email);
 
     if (user) {
-      return { hasAccount: true };
+      return { hasAccount: true, accessRequest: null };
     }
 
     const accessRequest = await this.accessRequestRepo.findOneBy({ email });
@@ -43,13 +43,10 @@ export class AccessService {
       return {
         hasAccount: false,
         accessRequest,
-        canAccess: accessRequest.status === AccessRequestStatus.APPROVED,
       };
     }
 
-    const freeSlot = await this.isAvailable();
-
-    return { hasAccount: false, canAccess: freeSlot };
+    return { hasAccount: false, accessRequest: null };
   }
 
   async requestAccess(dto: CreateAccessRequestDto): Promise<AccessRequest> {

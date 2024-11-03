@@ -35,3 +35,9 @@ export class ArgumentInvalidError extends InternalError {
     super(message, details, error);
   }
 }
+
+export class OperationError extends InternalError {
+  constructor(message: string, error: Error) {
+    super(message, {}, error);
+  }
+}
