@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import { AccessModule } from './application/access/access.module';
 import { AIModule } from './application/ai/ai.module';
@@ -17,6 +16,7 @@ import { CryptoModule } from './infrastructure/crypto/crypto.module';
 import { LoggerModule } from './infrastructure/logger/logger.module';
 import { MailgunModule } from './infrastructure/clients/mailgun/mailgun.module';
 import { EventModule } from './infrastructure/events/event.module';
+import { GooglePlacesModule } from './infrastructure/clients/google_places/google_places.module';
 
 const appModules = [
   ConfigModule,
@@ -24,6 +24,7 @@ const appModules = [
   LoggerModule,
   EventModule,
   TripAdvisorModule,
+  GooglePlacesModule,
   MailgunModule,
   DatabaseModule,
   AIModule,

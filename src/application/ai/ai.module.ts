@@ -4,6 +4,7 @@ import { AiService } from './ai.service';
 import { configSchema } from './ai.schemas';
 import { ConfigAdapter } from 'src/infrastructure/config/config.adapter';
 import { DbConfigType } from 'src/infrastructure/config/config.register';
+import { GooglePlacesClient } from 'src/infrastructure/clients/google_places/google_places.client';
 
 function buildPgUrl({ user, password, host, port, database }: DbConfigType) {
   return `postgres://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}:${port}/${database}`;
@@ -11,7 +12,11 @@ function buildPgUrl({ user, password, host, port, database }: DbConfigType) {
 
 const AiServiceProvider = {
   provide: AiService,
-  useFactory: async (tripAdvisorClient: TripAdvisorClient, configAdapter: ConfigAdapter) => {
+  useFactory: async (
+    tripAdvisorClient: TripAdvisorClient,
+    googlePlacesClient: GooglePlacesClient,
+    configAdapter: ConfigAdapter,
+  ) => {
     const dbConfig = configAdapter.get('db');
     const postgresUrl = buildPgUrl(dbConfig);
 
@@ -21,9 +26,9 @@ const AiServiceProvider = {
       postgresUrl,
     });
 
-    return AiService.init({ config, tripAdvisorClient });
+    return AiService.init({ config, googlePlacesClient, tripAdvisorClient });
   },
-  inject: [TripAdvisorClient, ConfigAdapter],
+  inject: [TripAdvisorClient, GooglePlacesClient, ConfigAdapter],
 };
 
 @Global()

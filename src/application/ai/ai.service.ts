@@ -10,7 +10,7 @@ import { TripAdvisorClient } from 'src/infrastructure/clients/trip_advisor';
 
 import { AiConfig } from './ai.schemas';
 import { initTripAdvisorTools } from './tools/trip_advisor.tools';
-import { MemorySaver } from '@langchain/langgraph';
+import { GooglePlacesClient } from 'src/infrastructure/clients/google_places/google_places.client';
 
 @Injectable()
 export class AiService {
@@ -32,11 +32,17 @@ export class AiService {
     return this.agent.stream(request, { configurable: { thread_id: config.threadId }, streamMode: 'values' });
   }
 
-  static async init({ config, tripAdvisorClient }: { config: AiConfig; tripAdvisorClient: TripAdvisorClient }) {
+  static async init({
+    config,
+    tripAdvisorClient,
+  }: {
+    config: AiConfig;
+    tripAdvisorClient: TripAdvisorClient;
+    googlePlacesClient: GooglePlacesClient;
+  }) {
     const pgSaver = PostgresSaver.fromConnString(config.postgresUrl);
     await pgSaver.setup();
 
-    const memorySaver = new MemorySaver();
     const promptString = await readFile(path.join(__dirname, 'prompt.txt'), 'utf-8');
     const tripAdvisorTools = initTripAdvisorTools(tripAdvisorClient);
     const llm = new ChatOpenAI({
@@ -46,7 +52,7 @@ export class AiService {
 
     const agent = createReactAgent({
       llm,
-      checkpointSaver: memorySaver,
+      checkpointSaver: pgSaver,
       tools: [...tripAdvisorTools],
       messageModifier: promptString,
     });

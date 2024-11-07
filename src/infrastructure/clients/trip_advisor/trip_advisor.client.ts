@@ -17,6 +17,7 @@ export class TripAdvisorClient {
       const response: AxiosResponse<T> = await this.httpClient.get(endpoint, {
         params: { ...params, key: this.config.apiKey },
       });
+      this.logger.debug({ data: response.data }, 'TripAdvisor API response');
       return response.data;
     } catch (error) {
       this.logger.error(error, `TripAdvisor API error: ${error.response.data.message}`);

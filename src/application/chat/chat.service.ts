@@ -1,14 +1,18 @@
-import { type Writable } from 'stream';
 import { Injectable } from '@nestjs/common';
-import { AiService } from '../ai/ai.service';
-import { MoreThanOrEqual, Repository } from 'typeorm';
-import { ChatMessage } from './chat.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { type Writable } from 'stream';
+import { MoreThanOrEqual, Repository } from 'typeorm';
+
+import { AiService } from '../ai/ai.service';
+import { ChatMessage } from './chat.entity';
 import { DailyChatLimitExceededError } from './chat.errors';
+import { ChatRole } from './chat.types';
 
 @Injectable()
 export class ChatService {
-  private readonly MAX_CHATS_PER_DAY = 20;
+  private readonly MAX_CHATS_PER_DAY = 40;
+
+  private DEFAULT_AI_PROMPT = 'Welcome to Tripmate AI! How can I help you today?';
 
   constructor(
     private readonly aiService: AiService,
@@ -19,12 +23,8 @@ export class ChatService {
   async streamChat(userId: string, message: string, writeStream: Writable) {
     await this.checkChatLimit(userId);
 
-    await this.chatMessageRepo.save({
-      user: { id: userId },
-      message,
-      role: 'user',
-      timestamp: new Date(),
-    });
+    const userChat = await this.chatMessageRepo.save(this.createChat(message, userId, ChatRole.USER));
+    writeStream.write(JSON.stringify(userChat));
 
     const messageStream = await this.aiService.stream(message, { threadId: userId });
 
@@ -33,12 +33,7 @@ export class ChatService {
 
       if (msg?.content) {
         if (msg.constructor?.name === 'AIMessage' && typeof msg.content === 'string') {
-          const aiMessage = this.chatMessageRepo.create({
-            user: { id: userId },
-            message: msg.content,
-            role: 'assistant',
-            timestamp: new Date(),
-          });
+          const aiMessage = this.createChat(msg.content, userId, ChatRole.ASSISTANT);
 
           await this.chatMessageRepo.save(aiMessage);
           writeStream.write(JSON.stringify(aiMessage));
@@ -50,13 +45,21 @@ export class ChatService {
   }
 
   async getChats(userId: string) {
-    const last10 = await this.chatMessageRepo.find({
+    const last20 = await this.chatMessageRepo.find({
       where: { user: { id: userId } },
       order: { timestamp: 'DESC' },
       take: 20,
     });
 
-    return last10.reverse();
+    if (last20.length === 0) {
+      const newAiChat = await this.chatMessageRepo.save(
+        this.createChat(this.DEFAULT_AI_PROMPT, userId, ChatRole.ASSISTANT),
+      );
+
+      return [newAiChat];
+    }
+
+    return last20.reverse();
   }
 
   private async checkChatLimit(userId: string): Promise<void> {
@@ -73,5 +76,14 @@ export class ChatService {
     if (chatCount >= this.MAX_CHATS_PER_DAY) {
       throw new DailyChatLimitExceededError('Daily chat limit exceeded');
     }
+  }
+
+  private createChat(message: string, userId: string, role: ChatRole) {
+    return this.chatMessageRepo.create({
+      user: { id: userId },
+      message,
+      role,
+      timestamp: new Date(),
+    });
   }
 }

@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../user/user.entity';
 import { TABLE_NAMES } from 'src/infrastructure/database/constants';
+import { ChatRole } from './chat.types';
 
 @Entity({ name: TABLE_NAMES.CHAT_MESSAGE })
 export class ChatMessage {
@@ -10,8 +11,8 @@ export class ChatMessage {
   @Column({ type: 'varchar', length: 3000 })
   message: string;
 
-  @Column({ type: 'enum', enum: ['user', 'assistant'] })
-  role: 'user' | 'assistant';
+  @Column({ type: 'enum', enum: ChatRole })
+  role: ChatRole;
 
   @ManyToOne(() => User, (user) => user.chatMessages)
   user: User;

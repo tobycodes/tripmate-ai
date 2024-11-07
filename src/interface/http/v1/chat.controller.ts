@@ -19,6 +19,8 @@ export class ChatController {
 
   @Get()
   async getChats(@AuthUser() user: User) {
-    return this.chatService.getChats(user.id);
+    const messages = await this.chatService.getChats(user.id);
+
+    return { messages };
   }
 }
