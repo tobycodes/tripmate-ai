@@ -1,0 +1,58 @@
+name: Fly Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-and-migrate-db:
+    runs-on: ubuntu-latest
+    concurrency: deploy-group
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'Create env file'
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20.17.0'
+
+      - name: 'Install dependencies'
+        run: npm ci
+
+      - name: 'Build Project'
+        run: npm run build
+
+      - name: 'Run database migrations'
+        id: db_migration
+        run: |
+          set -e
+          set -o pipefail
+
+          OLD_COUNT=$(npm run pgm:run show | grep -o "\\[X\\]" | wc -l | xargs)
+          npm run pgm:run up
+          NEW_COUNT=$(npm run pgm:run show | grep -o "\\[X\\]" | wc -l | xargs)
+
+          if [[ "$OLD_COUNT" < "$NEW_COUNT" ]]; then
+            CHANGED=true
+          else
+            CHANGED=false
+          fi
+
+          echo "changed=$CHANGED" >> $GITHUB_OUTPUT
+
+      - name: 'Setup flyctl'
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: 'Deploy to fly.io'
+        id: flydeploy
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
+
+      - name: Rollback database changes on fly deployment failure
+        if: ${{ failure() && steps.flydeploy.conclusion == 'failure' && steps.db_migration.outputs.changed == 'true'  }}
+        run: npm run pgm:run down
