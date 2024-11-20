@@ -18,9 +18,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "pgm:create": "npm run build && node dist/scripts/create-migration.js",
-    "pgm:generate": "npm run build && node dist/scripts/generate-migration.js",
-    "pgm:run": "npm run build && node dist/scripts/run-migrations.js"
+    "pgm:create": "node dist/scripts/create-migration.js",
+    "pgm:generate": "node dist/scripts/generate-migration.js",
+    "pgm:run": "node dist/scripts/run-migrations.js"
   },
   "dependencies": {
     "@langchain/community": "^0.3.3",
