@@ -32,11 +32,19 @@ jobs:
           set -e
           set -o pipefail
 
-          OLD_COUNT=$(npm run pgm:run show | grep -o "\\[X\\]" | wc -l | xargs)
+          error_handler() {
+            echo "Error occurred in script at line $1."
+            echo "Exiting script."
+            exit 1
+          }
+
+          trap 'error_handler $LINENO' ERR
+
+          OLD_COUNT=$(npm run pgm:run show | grep -o "\\[X\\]" | wc -l | xargs || true)
           npm run pgm:run up
           NEW_COUNT=$(npm run pgm:run show | grep -o "\\[X\\]" | wc -l | xargs)
 
-          if [[ "$OLD_COUNT" < "$NEW_COUNT" ]]; then
+          if [ "$OLD_COUNT" -lt "$NEW_COUNT" ]; then
             CHANGED=true
           else
             CHANGED=false
