@@ -15,7 +15,7 @@ import { LoggerAdapter } from 'src/infrastructure/logger/logger.adapter';
 
 @Injectable()
 export class AccessService {
-  private MAX_FREE_SLOTS = 10;
+  private MAX_FREE_SLOTS = 15;
 
   constructor(
     @InjectRepository(AccessRequest) private readonly accessRequestRepo: Repository<AccessRequest>,
